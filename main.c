@@ -4,16 +4,16 @@
 
 void print_modules(char data[]);
 
-//------------------------------------------
+//-------------------------------------------
 // Step 1: Datenstruktur und Datentyp anlegen
-//------------------------------------------
+//-------------------------------------------
 
 // Structures
 typedef struct                  // using typedef to make struct "cleaner" -> typedef is a 'new datatype'
 {
     // members
-    char module[50];            // Modulbezeichnung
-    char abbreviation[50];      // Abkürzung
+    char module[100];            // Modulbezeichnung
+    char abbreviation[10];      // Abkürzung
     int valuation;              // Gewichtung
     int grade;                  // Note
 } course;                       //giving the name "course" to this struct
@@ -61,7 +61,7 @@ int main (void)
 
     // Defining Pointer to File
     FILE *csv;
-    char buffer[50];                        // buffer array to store the read values
+    char buffer[100];                        // buffer array to store the read values
 
     csv = fopen("module.csv", "r");         // fopen returns a file pointer which is stored into "csv"
 
@@ -74,31 +74,38 @@ int main (void)
         while (fgets(buffer, 80, csv) != NULL)        // csv -> telling the fgets where to get the string from //
         {                                               // fgets returns a NULL when it gets to the end (we continue as long as we are not at the end of the line)
             // saving module
-            coursePtr_2 = strtok(buffer, "; ");   // Funktion sucht in der Zeichenkette 'buffer' nach einem Semikolon und setzt überall dort, wo es ein Semikolon findet die Null-Terminierung rein
-            strcpy(ree.module, coursePtr_2);     // the first token is already a string so we can just copy it into our struct variable ree.module
+            coursePtr_2 = strtok(buffer, ";");   // Funktion sucht in der Zeichenkette 'buffer' nach einem Semikolon und setzt überall dort, wo es ein Semikolon findet die Null-Terminierung rein
 
+            //printf(" %s \n", buffer);
+            //strcpy(ree.module, coursePtr_2);     // the first token is already a string so we can just copy it into our struct variable ree.module
+            strcpy(ree.module, coursePtr_2);
+            printf("%s\n", ree.module);
        
             //saving abbreviation
             coursePtr_2 = strtok(NULL, ";");   // "NULL" says continue where you stopped last time
             strcpy(ree.abbreviation, coursePtr_2);
+            printf("%s\n", ree.abbreviation);
 
             //saving valuation
             coursePtr_2 = strtok(NULL, ";");
             ree.valuation = atoi(coursePtr_2);
+            printf("%d\n", ree.valuation);
 
             //saving grade
             coursePtr_2 = strtok(NULL, ";");
             ree.grade = atoi(coursePtr_2);
+            printf("%d\n", ree.grade);
 
-            printf("%s  %s  %d  %d", ree.module, ree.abbreviation, ree.valuation, ree.grade);
+            // printf("%s  %s  %d  %d\n", ree.module, ree.abbreviation, ree.valuation, ree.grade);
 
-            free(coursePtr_2);
-        }
+        //     free(coursePtr_2);
+        // }
     }
     
     fclose(csv);
 
     return 0;
+}
 }
 
 //------------------------
