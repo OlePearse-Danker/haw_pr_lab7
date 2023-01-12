@@ -2,22 +2,24 @@
 #include <stdlib.h>     // includes malloc
 #include <string.h>
 
-void print_modules(char data[]);
-
 //-------------------------------------------
 // Step 1: Datenstruktur und Datentyp anlegen
 //-------------------------------------------
 
-// Structures
+// structures
 typedef struct                  // using typedef to make struct "cleaner" -> typedef is a 'new datatype'
 {
     // members
     char module[100];            // Modulbezeichnung
-    char abbreviation[10];      // Abkürzung
-    int valuation;              // Gewichtung
-    int grade;                  // Note
-} course;                       //giving the name "course" to this struct
+    char abbreviation[10];       // Abkürzung
+    int valuation;               // Gewichtung
+    int grade;                   // Note
+} course;                        // giving the name "course" to this struct
 
+// function declarations
+void print_courses(course x);                       // function to print the courses
+void get_grades(course x);                          // function to get the grades of the user
+short get_short(char text[], short MIN, short MAX); // function to get safe user input
 
 int main (void)
 {
@@ -25,38 +27,17 @@ int main (void)
 
     course ree;                 // groups together the variables in the struct under the name "ree"
                                 // when using typedef, you do not have to write struct anymore (cleaner)
-    // strcpy(ree.module, "math"); // first argument of strcpy is the destination, second is the source
-    // strcpy(ree.abbreviation, "MA_1");
-    // ree.valuation = 8;
-    // ree.grade = 10;
-
-    // printf("module: %s\n", ree.module);
-    // printf("abbreviation: %s\n", ree.abbreviation);
-    // printf("valuation: %d\n", ree.valuation);
-    // printf("grade: %d\n", ree.grade);
-
-    // Defining Pointer to the struct 
-
-    course *coursePtr_1;
-    coursePtr_1 = &ree; 
-
-    // printf("\n");
-    // coursePtr_1->valuation = 1;               //arrow notation gives us access to the member variables 
-
-    // printf("valuation: %d\n", ree.valuation);           //option 1 to output 
-    // printf("valuation: %d\n", coursePtr_1->valuation);  //option 2 to output
-
-    //dynamically allocating space for the struct
+                
+    // defining pointer to the struct 
+    // dynamically allocating space for the struct
 
     course *coursePtr_2;
     coursePtr_2 = malloc(sizeof(course));   // go get enough space for something as large as the struct course
                                             // sizeof(course) returns how many bytes are needed to store a course
-                                            // malloc returns memory adress for a block of memory that is large enough to store a struct like "course"
-    // // coursePtr_2->valuation = 2;
-    // printf("valuation: %d\n", coursePtr_2->valuation);   
+                                            // malloc returns memory adress for a block of memory that is large enough to store a struct like "course"   
 
     //---------------------------------
-    // Schritt 2: Daten einlesen
+    // Step 2: Daten einlesen
     //---------------------------------
 
     // Defining Pointer to File
@@ -75,43 +56,82 @@ int main (void)
         {                                               // fgets returns a NULL when it gets to the end (we continue as long as we are not at the end of the line)
             // saving module
             coursePtr_2 = strtok(buffer, ";");   // Funktion sucht in der Zeichenkette 'buffer' nach einem Semikolon und setzt überall dort, wo es ein Semikolon findet die Null-Terminierung rein
-
-            //printf(" %s \n", buffer);
-            //strcpy(ree.module, coursePtr_2);     // the first token is already a string so we can just copy it into our struct variable ree.module
-            strcpy(ree.module, coursePtr_2);
-            printf("%s\n", ree.module);
+            strcpy(ree.module, coursePtr_2);     // the first token is already a string so we can just copy it into our struct variable ree.module
+                                                 // first argument of strcpy is the destination, second is the source
        
-            //saving abbreviation
+            // saving abbreviation
             coursePtr_2 = strtok(NULL, ";");   // "NULL" says continue where you stopped last time
             strcpy(ree.abbreviation, coursePtr_2);
-            printf("%s\n", ree.abbreviation);
-
-            //saving valuation
+           
+            // saving valuation
             coursePtr_2 = strtok(NULL, ";");
-            ree.valuation = atoi(coursePtr_2);
-            printf("%d\n", ree.valuation);
+            ree.valuation = atoi(coursePtr_2);  // converting string to integer value
 
-            //saving grade
-            coursePtr_2 = strtok(NULL, ";");
-            ree.grade = atoi(coursePtr_2);
-            printf("%d\n", ree.grade);
+            print_courses(ree);                 // function to print the freshly filled struct
 
-            // printf("%s  %s  %d  %d\n", ree.module, ree.abbreviation, ree.valuation, ree.grade);
-
-        //     free(coursePtr_2);
-        // }
+           
+        }
+        fclose(csv); // closing file after we read in the content
     }
-    
-    fclose(csv);
+
+    // free(coursePtr_2); // fragen: warum kann ich diesen pointer nicht befreien?
 
     return 0;
-}
+
 }
 
-//------------------------
-// Funktionsdeklarationen
-// void print_modules(char data[])
-// {
-//     printf("%s\n", data);
-// }
+// function definitions
 
+//----------------------------------------------------------------------------
+// Step 3: Funktion die alle Module mit Abkürzung, Gewichtung und Note ausgibt
+//----------------------------------------------------------------------------
+void print_courses(course x)
+{
+    printf("Modulbezeichnung: %s\n", x.module);
+    printf("Abkürzung: %s\n", x.abbreviation);
+    printf("Gewichtung: %d\n", x.valuation);
+
+    // getting grade from user and print it
+    get_grades(x);  
+}
+
+void get_grades(course x)                          // function to get the grades of the user and print it
+{
+    x.grade = get_short("Geben Sie bitte hier Ihre Note ein", 0, 15);
+    printf("Note: %d\n", x.grade);
+    printf("-----------------------------------------------------------------------------------\n");
+}
+
+short get_short(char text[], short MIN, short MAX)
+{
+    //declare working variables 
+    short value;
+    int finished = 0; //0 für FALSE
+    char ch;
+    int retVal;
+
+    do
+    {
+        printf("%s: ", text); //Abkürzung "s" für "string" / Zeichenkette
+
+        ch = '\0'; // \0 wird als ein Buchstabe gewertet; O ist nicht die Zahl 0 sondern ein "Null Character"; Null Character hat in der Ascii Tabelle auch den Wert 0
+
+        retVal = scanf("%hd%c", &value, &ch); // -> "hd" steht für short -> Adresse ist "Value"; scanf gibt auch einen Wert zurück, diesen speichern wir in retVal 
+
+        // check for valid user input
+        if (retVal != 2) printf("Das war keine korrekte Zahl!\n");
+        else if (ch != '\n') printf("Unerwartete Zeichen hinter der Zahl!\n");
+        else if (value < MIN) printf("Zahl ist zu klein (MIN: %hd)\n",MIN);
+        else if (value > MAX) printf("Zahl ist zu gro%c (MAX: %hd)\n",225,MAX);
+        else finished = 1; // falls die Variable tatsächlich 2 ist; und der character ein newline, ist alles richtig und die loop wird beendet
+
+        //Variable finished wird auf 1 gesetzt -> weil 1 für TRUE
+
+        //clear input stream buffer
+        while (ch != '\n') scanf("%c", &ch); //Variation mit scanf von getchar
+
+    } while (!finished); //repeat if not finished 
+
+    //return user input
+    return value; //wer auch immer die Funktion get_short aufruft bekomm "value" zurück
+}
